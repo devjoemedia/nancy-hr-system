@@ -1,0 +1,52 @@
+{% extends "base.html" %}
+{% from "macros.html" import csrf, employee_select %}
+{% block title %}Leave{% endblock %}
+{% block content %}
+<h1>Leave</h1>
+<div class="split">
+  <div class="card">
+    <div class="card-head">Leave Request</div>
+    <form method="post" class="card-body form">
+      {{ csrf() }}
+      <label>Employee {{ employee_select(employees) }}</label>
+      <label>Leave Type
+        <select name="leave_type">{% for t in leave_types %}<option>{{ t }}</option>{% endfor %}</select>
+      </label>
+      <label>Start Date <input type="date" name="start_date" required></label>
+      <label>End Date <input type="date" name="end_date" required></label>
+      <label>Reason <input name="reason"></label>
+      <button class="btn">Submit</button>
+    </form>
+  </div>
+
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>ID</th><th>Code</th><th>Name</th><th>Type</th><th>Start</th><th>End</th><th>Days</th><th>Status</th><th></th></tr></thead>
+      <tbody>
+        {% for r in requests %}
+          <tr>
+            <td>{{ r['id'] }}</td><td>{{ r['employee_id'] }}</td>
+            <td class="strong">{{ r['first_name'] }} {{ r['last_name'] }}</td>
+            <td>{{ r['leave_type'] }}</td><td>{{ r['start_date'] }}</td><td>{{ r['end_date'] }}</td>
+            <td>{{ r['days'] }}</td>
+            <td><span class="pill pill-{{ r['status']|lower }}">{{ r['status'] }}</span></td>
+            <td class="nowrap">
+              {% if r['status'] == 'Pending' %}
+                {% for status, label in [('Approved', 'Approve'), ('Rejected', 'Reject')] %}
+                  <form method="post" action="{{ url_for('leave_decide', request_id=r['id']) }}" class="inline-form">
+                    {{ csrf() }}
+                    <input type="hidden" name="status" value="{{ status }}">
+                    <button class="btn ghost small">{{ label }}</button>
+                  </form>
+                {% endfor %}
+              {% endif %}
+            </td>
+          </tr>
+        {% else %}
+          <tr><td colspan="9" class="empty">No leave requests.</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endblock %}

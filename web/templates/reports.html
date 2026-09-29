@@ -1,0 +1,73 @@
+{% extends "base.html" %}
+{% block title %}Reports{% endblock %}
+{% block content %}
+<div class="page-head">
+  <h1>Reports</h1>
+  <a class="btn" href="{{ url_for('export_excel') }}">Export to Excel</a>
+</div>
+
+<div class="card">
+  <div class="card-head">Staff Report</div>
+  <div class="card-body">
+    <div class="stats">
+      {% set colors = ['#C0501E', '#B4881C', '#3A5A8C'] %}
+      {% for kind in kinds %}
+        <div class="stat" style="background:{{ colors[loop.index0 % 3] }}">
+          <div class="stat-value">{{ totals[kind] }}</div>
+          <div class="stat-label">Total {{ kind }} Staff</div>
+        </div>
+      {% endfor %}
+      <div class="stat" style="background:#2E7D5B">
+        <div class="stat-value">{{ totals['Total'] }}</div>
+        <div class="stat-label">Total Staff</div>
+      </div>
+    </div>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Location</th>{% for kind in kinds %}<th class="num">{{ kind }}</th>{% endfor %}<th class="num">Total</th></tr></thead>
+        <tbody>
+          {% for row in rows %}
+            <tr><td class="strong">{{ row[0] }}</td>{% for n in row[1:] %}<td class="num">{{ n }}</td>{% endfor %}</tr>
+          {% endfor %}
+          <tr class="total"><td>TOTAL</td>{% for kind in kinds %}<td class="num">{{ totals[kind] }}</td>{% endfor %}<td class="num">{{ totals['Total'] }}</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<div class="card">
+  <div class="card-head">License Expiry</div>
+  <div class="card-body">
+    <form class="toolbar" method="get">
+      <fieldset class="plain">
+        <legend>Expiring</legend>
+        {% for s in stages %}
+          <label class="inline"><input type="radio" name="stage" value="{{ s }}" {{ 'checked' if s == stage }}> {{ s }}</label>
+        {% endfor %}
+      </fieldset>
+      <label>Expiring Period
+        <select name="period">{% for p in periods %}<option {{ 'selected' if p == period }}>{{ p }}</option>{% endfor %}</select>
+      </label>
+      <button class="btn">Generate</button>
+    </form>
+    <p class="muted">{{ stage }} – {{ period }} ({{ licenses|length }} found)</p>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Code</th><th>Name</th><th>Designation</th><th>Location</th><th>License No</th><th>Type</th><th>Date</th><th class="num">Days Left</th></tr></thead>
+        <tbody>
+          {% for r in licenses %}
+            <tr>
+              <td>{{ r.employee_id }}</td><td class="strong">{{ r.name }}</td><td>{{ r.designation }}</td>
+              <td>{{ r.location }}</td><td>{{ r.license_no }}</td><td>{{ r.license_type }}</td>
+              <td>{{ r.date }}</td><td class="num {{ 'overdue' if r.days_left < 0 }}">{{ r.days_left }}</td>
+            </tr>
+          {% else %}
+            <tr><td colspan="8" class="empty">No licenses in this period.</td></tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+{% endblock %}

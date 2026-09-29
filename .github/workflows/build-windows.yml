@@ -1,0 +1,59 @@
+# Builds the Windows desktop app (NancyHR.exe) from the windows-exe/ folder
+# on GitHub's Windows machines.
+#
+# - Push a version tag (e.g. `git tag v1.0 && git push origin v1.0`) to build
+#   it and publish a GitHub Release with NancyHR-windows.zip attached.
+# - Or run it by hand: Actions tab -> "Build Windows app" -> Run workflow.
+#   The zip is then under that run's "Artifacts".
+
+name: Build Windows app
+
+on:
+  push:
+    tags: ["v*"]
+  workflow_dispatch:
+
+permissions:
+  contents: write   # needed to create the release
+
+defaults:
+  run:
+    working-directory: windows-exe
+
+jobs:
+  build:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install build tools
+        run: python -m pip install --upgrade pip -r requirements.txt
+
+      - name: Build NancyHR.exe
+        run: pyinstaller --onefile --windowed --name NancyHR --noconfirm hr_ms.py
+
+      - name: Package the zip
+        shell: pwsh
+        run: |
+          New-Item -ItemType Directory -Force NancyHR | Out-Null
+          Copy-Item dist/NancyHR.exe, logo.jpeg, README.txt NancyHR/
+          Compress-Archive -Path NancyHR -DestinationPath NancyHR-windows.zip -Force
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: NancyHR-windows
+          path: windows-exe/NancyHR-windows.zip
+
+      - name: Publish release
+        if: startsWith(github.ref, 'refs/tags/')
+        uses: softprops/action-gh-release@v2
+        with:
+          files: windows-exe/NancyHR-windows.zip
+          body: |
+            Windows desktop app. Download **NancyHR-windows.zip**, unzip it
+            somewhere permanent (e.g. Documents), and double-click NancyHR.exe.
+            See README.txt inside the zip. No Python installation needed.

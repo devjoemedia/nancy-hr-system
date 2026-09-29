@@ -1,0 +1,17 @@
+{% extends "base.html" %}
+{% from "macros.html" import csrf %}
+{% block title %}Sign in{% endblock %}
+{% block content %}
+<div class="login">
+  {% if has_logo %}<img class="login-logo" src="{{ url_for('logo') }}" alt="Company logo">{% endif %}
+  <div class="card">
+    <div class="card-head">Sign in</div>
+    <form method="post" class="card-body form">
+      {{ csrf() }}
+      <label>Username <input name="username" autocomplete="username" required autofocus></label>
+      <label>Password <input name="password" type="password" autocomplete="current-password" required></label>
+      <button class="btn">Sign in</button>
+    </form>
+  </div>
+</div>
+{% endblock %}

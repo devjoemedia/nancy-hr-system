@@ -1,0 +1,46 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{% block title %}HR Management System{% endblock %} · Nancy HR</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+  <header class="banner">
+    <div class="banner-inner">
+      <a class="brand" href="{{ url_for('dashboard') }}">HR Management System</a>
+      {% if g.user %}
+        <nav class="nav">
+          {% set here = request.endpoint %}
+          <a href="{{ url_for('dashboard') }}" class="{{ 'on' if here == 'dashboard' }}">Dashboard</a>
+          <a href="{{ url_for('employees') }}" class="{{ 'on' if here and here.startswith('employee') }}">Employees</a>
+          <a href="{{ url_for('attendance') }}" class="{{ 'on' if here == 'attendance' }}">Attendance</a>
+          <a href="{{ url_for('leave') }}" class="{{ 'on' if here == 'leave' }}">Leave</a>
+          <a href="{{ url_for('payroll') }}" class="{{ 'on' if here == 'payroll' }}">Payroll</a>
+          <a href="{{ url_for('reports') }}" class="{{ 'on' if here == 'reports' }}">Reports</a>
+          <a href="{{ url_for('users') }}" class="{{ 'on' if here == 'users' }}">Users</a>
+        </nav>
+        <div class="who">
+          <a href="{{ url_for('account') }}">{{ g.user['username'] }}</a>
+          <form method="post" action="{{ url_for('logout') }}">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+            <button class="link">Sign out</button>
+          </form>
+        </div>
+      {% else %}
+        <span class="tagline">Nancy · Human Resources</span>
+      {% endif %}
+    </div>
+  </header>
+
+  <main class="page">
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% for category, message in messages %}
+        <div class="flash flash-{{ category }}">{{ message }}</div>
+      {% endfor %}
+    {% endwith %}
+    {% block content %}{% endblock %}
+  </main>
+</body>
+</html>

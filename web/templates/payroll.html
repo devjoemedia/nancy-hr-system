@@ -1,0 +1,43 @@
+{% extends "base.html" %}
+{% from "macros.html" import csrf, employee_select %}
+{% block title %}Payroll{% endblock %}
+{% block content %}
+<h1>Payroll</h1>
+<div class="split">
+  <div class="card">
+    <div class="card-head">Generate Payroll</div>
+    <form method="post" class="card-body form">
+      {{ csrf() }}
+      <label>Employee {{ employee_select(employees) }}</label>
+      <label>Month <input type="month" name="month" required></label>
+      <label>Allowances <input name="allowances" inputmode="decimal" placeholder="0"></label>
+      <label>Overtime <input name="overtime" inputmode="decimal" placeholder="0"></label>
+      <label>Deductions <input name="deductions" inputmode="decimal" placeholder="0"></label>
+      <small>Net = basic salary + allowances + overtime − deductions</small>
+      <button class="btn">Submit</button>
+    </form>
+  </div>
+
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>Code</th><th>Name</th><th>Month</th><th class="num">Basic</th><th class="num">Allow.</th><th class="num">OT</th><th class="num">Deduct.</th><th class="num">Net</th></tr></thead>
+      <tbody>
+        {% for r in records %}
+          <tr>
+            <td>{{ r['employee_id'] }}</td>
+            <td class="strong">{{ r['first_name'] }} {{ r['last_name'] }}</td>
+            <td>{{ r['month'] }}</td>
+            <td class="num">{{ '{:,.2f}'.format(r['basic_salary']) }}</td>
+            <td class="num">{{ '{:,.2f}'.format(r['allowances']) }}</td>
+            <td class="num">{{ '{:,.2f}'.format(r['overtime']) }}</td>
+            <td class="num">{{ '{:,.2f}'.format(r['deductions']) }}</td>
+            <td class="num strong">{{ '{:,.2f}'.format(r['net_salary']) }}</td>
+          </tr>
+        {% else %}
+          <tr><td colspan="8" class="empty">No payroll records.</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endblock %}

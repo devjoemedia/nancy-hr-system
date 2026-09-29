@@ -1,0 +1,19 @@
+{% extends "base.html" %}
+{% block title %}Dashboard{% endblock %}
+{% block content %}
+<div class="page-head">
+  <h1>Dashboard</h1>
+  <a class="btn" href="{{ url_for('export_excel') }}">Export to Excel</a>
+</div>
+<div class="stats">
+  {% for title, value, color in stats %}
+    <div class="stat" style="background:{{ color }}">
+      <div class="stat-value">{{ value }}</div>
+      <div class="stat-label">{{ title }}</div>
+    </div>
+  {% endfor %}
+</div>
+{% if has_logo %}
+  <div class="dash-logo"><img src="{{ url_for('logo') }}" alt="Company logo"></div>
+{% endif %}
+{% endblock %}

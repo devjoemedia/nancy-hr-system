@@ -1,0 +1,27 @@
+# Python
+__pycache__/
+*.pyc
+.venv/
+venv/
+
+# Machine-specific PyCharm settings (each computer sets its own Python)
+.idea/misc.xml
+.idea/workspace.xml
+
+# Local data - each installation keeps its own
+hr_management.db
+photos/
+exports/
+
+# Web version: the session signing key is created on first run
+instance/
+
+# Local tool settings
+.claude/
+
+# Windows .exe build output
+windows-exe/build/
+windows-exe/dist/
+windows-exe/NancyHR/
+windows-exe/*.spec
+windows-exe/*.zip

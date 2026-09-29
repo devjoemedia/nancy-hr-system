@@ -1,0 +1,86 @@
+{% extends "base.html" %}
+{% from "macros.html" import avatar, csrf %}
+{% block title %}{{ 'Edit' if emp else 'Add' }} Employee{% endblock %}
+{% block content %}
+<div class="page-head">
+  <h1>{{ 'Edit' if emp else 'Add' }} Employee</h1>
+  <a class="btn ghost" href="{{ url_for('employees') }}">Back to list</a>
+</div>
+
+<div class="card form-card">
+  <div class="card-head">Employee Data Form</div>
+  <form method="post" enctype="multipart/form-data" class="card-body form grid">
+    {{ csrf() }}
+
+    <label>Employee Code
+      {% if emp %}
+        <input value="{{ code }}" disabled>
+      {% else %}
+        <input name="employee_id" value="{{ code }}" required maxlength="30"
+               pattern="[A-Za-z0-9_\-]+" title="Letters, numbers, - and _ only">
+      {% endif %}
+    </label>
+
+    <div class="photo-field">
+      <span class="label">Photo</span>
+      <div class="photo-row">
+        {% if emp %}{{ avatar(emp, 72) }}{% endif %}
+        <div>
+          <input type="file" name="photo" accept=".jpg,.jpeg,.png,image/jpeg,image/png">
+          <small>JPG, JPEG or PNG</small>
+          {% if emp and emp['photo'] %}
+            <label class="inline"><input type="checkbox" name="remove_photo" value="1"> Remove photo</label>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+
+    {% for column, label, kind, options in form %}
+      {% if kind == 'section' %}
+        <h3 class="section">{{ label }}</h3>
+      {% elif kind == 'combo' %}
+        <label>{{ label }}
+          <select name="{{ column }}">
+            <option value=""></option>
+            {% for option in options %}
+              <option {{ 'selected' if values[column] == option }}>{{ option }}</option>
+            {% endfor %}
+            {% if values[column] and values[column] not in options %}
+              <option selected>{{ values[column] }}</option>
+            {% endif %}
+          </select>
+        </label>
+      {% elif kind == 'radio' %}
+        <fieldset>
+          <legend>{{ label }}</legend>
+          {% for option in options %}
+            <label class="inline"><input type="radio" name="{{ column }}" value="{{ option }}"
+              {{ 'checked' if values[column] == option }}> {{ option }}</label>
+          {% endfor %}
+        </fieldset>
+      {% elif kind == 'date' %}
+        <label>{{ label }} <input type="date" name="{{ column }}" value="{{ values[column] }}"></label>
+      {% else %}
+        <label>{{ label }}
+          <input name="{{ column }}" value="{{ values[column] }}"
+            {% if column in ('first_name', 'last_name') %}required{% endif %}
+            {% if column == 'basic_salary' %}inputmode="decimal"{% endif %}
+            {% if column == 'email' %}type="email"{% endif %}>
+        </label>
+      {% endif %}
+    {% endfor %}
+
+    <div class="actions">
+      <button class="btn">{{ 'Update' if emp else 'Submit' }}</button>
+    </div>
+  </form>
+</div>
+
+{% if emp %}
+  <form method="post" action="{{ url_for('employee_deactivate', code=code) }}" class="danger-zone"
+        onsubmit='return confirm({{ ("Deactivate " ~ emp["first_name"] ~ " " ~ emp["last_name"] ~ "?")|tojson }});'>
+    {{ csrf() }}
+    <button class="btn danger">Deactivate employee</button>
+  </form>
+{% endif %}
+{% endblock %}

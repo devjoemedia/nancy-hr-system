@@ -1,0 +1,26 @@
+{% macro avatar(emp, size=40) -%}
+  {%- if emp['photo'] -%}
+    <img class="avatar" src="{{ url_for('employee_photo', code=emp['employee_id']) }}"
+         alt="" width="{{ size }}" height="{{ size }}">
+  {%- else -%}
+    <span class="avatar initials"
+          style="width:{{ size }}px;height:{{ size }}px;font-size:{{ (size * 0.4)|int }}px;background:{{ avatar_color(emp['employee_id'], emp['first_name'], emp['last_name']) }}">
+      {{- initials(emp['first_name'], emp['last_name']) -}}
+    </span>
+  {%- endif -%}
+{%- endmacro %}
+
+{% macro csrf() -%}
+  <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+{%- endmacro %}
+
+{% macro employee_select(employees, selected='', name='employee_id', blank='Choose an employee…') -%}
+  <select name="{{ name }}" {% if blank.startswith('Choose') %}required{% endif %}>
+    <option value="">{{ blank }}</option>
+    {% for e in employees %}
+      <option value="{{ e['employee_id'] }}" {{ 'selected' if e['employee_id'] == selected }}>
+        {{ e['first_name'] }} {{ e['last_name'] }} ({{ e['employee_id'] }})
+      </option>
+    {% endfor %}
+  </select>
+{%- endmacro %}

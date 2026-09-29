@@ -1,0 +1,15 @@
+{% extends "base.html" %}
+{% from "macros.html" import csrf %}
+{% block title %}Change Password{% endblock %}
+{% block content %}
+<h1>Change Password</h1>
+<div class="card narrow">
+  <div class="card-head">{{ g.user['username'] }}</div>
+  <form method="post" class="card-body form">
+    {{ csrf() }}
+    <label>New password <input name="password" type="password" minlength="8" required autocomplete="new-password"></label>
+    <label>Confirm new password <input name="confirm" type="password" minlength="8" required autocomplete="new-password"></label>
+    <button class="btn">Change Password</button>
+  </form>
+</div>
+{% endblock %}
